@@ -1,0 +1,5 @@
+setuptools
+pywebview~=5.3.2
+pyinstaller; sys_platform != 'darwin'
+py2app; sys_platform == 'darwin'
+paddleocr~=3.0.0
