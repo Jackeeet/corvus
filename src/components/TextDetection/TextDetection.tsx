@@ -34,7 +34,6 @@ export const TextDetection = (props: TextDetectionProps) => {
   const [imgFileNames, setImgFileNames] = useState<string[]>([]);
   const [imgFilePaths, setImgFilePaths] = useState<string[]>([]);
   const [imgFilesData, setImgFilesData] = useState<string[]>([]);
-  const [imgFilesWithBboxes, setImgFilesWithBboxes] = useState<string[]>([]);
 
   const handleAddImgFile = async () => {
     const result: Image[] = await usePythonApi('open_file_dialog');
@@ -77,20 +76,30 @@ export const TextDetection = (props: TextDetectionProps) => {
     props.onStepChange(oldStep + 1);
   }
 
+  const [awaitingBackend, setAwaitingBackend] = useState(false);
+
   const [detectionResults, setDetectionResults] = useState([]);
   const handleDetectTextRequest = async () => {
+    setAwaitingBackend(true);
     const detectedAreas = await usePythonApi('detect_text_areas', imgFilePaths);
-    setDetectionResults(detectedAreas.map(a => a['detected']['res']['dt_polys'].map(p =>
-      `(${p[0][0]}, ${p[0][1]}), (${p[1][0]}, ${p[1][1]}), (${p[2][0]}, ${p[2][1]}), (${p[3][0]}, ${p[3][1]})`
+    setDetectionResults(detectedAreas.map(a => a['detected'].map(p =>
+      `x: ${p['x']}, y: ${p['y']}, w: ${p['w']}, h: ${p['h']}`
     )));
-    setImgFilesWithBboxes(detectedAreas.map(a => a['image']));
     setImgFilesData(detectedAreas.map(a => a['image']));
+    setAwaitingBackend(false);
     setCanMoveToNextStep(true);
   }
 
   const [recognitionResults, setRecognitionResults] = useState([]);
-  const handleRecogniseTextRequest = () => {
-    // call python text recognition (custom NN) here
+  const handleRecogniseTextRequest = async () => {
+    setAwaitingBackend(true);
+    const boxData = detectionResults.length > 0 ? detectionResults : null;
+    const recognizedStrings = await usePythonApi(
+      'recognize_text_strings',
+      imgFilePaths, null, boxData
+    )
+    setRecognitionResults(recognizedStrings.map(rec => rec.map(s => s['string'])));
+    setAwaitingBackend(false);
     setCanMoveToNextStep(true);
   }
 
@@ -154,18 +163,19 @@ export const TextDetection = (props: TextDetectionProps) => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         padding: '1rem',
+                        zIndex: 10000
                       }}>
                         {activeStep === 0 &&
-                            <Button variant="contained" sx={{width: '100%'}}
-                                    disabled={imgFileNames.length <= 0}
+                            <Button variant="contained" sx={{width: '100%', zIndex: 10000}}
+                                    disabled={imgFileNames.length <= 0 || awaitingBackend}
                                     onClick={handleDetectTextRequest}
                             >
                                 Детектировать области текста
                             </Button>
                         }
                         {activeStep === 1 &&
-                            <Button variant="contained" sx={{width: '100%'}}
-                                    disabled={imgFileNames.length <= 0}
+                            <Button variant="contained" sx={{width: '100%', zIndex: 10000}}
+                                    disabled={imgFileNames.length <= 0 || awaitingBackend}
                                     onClick={handleRecogniseTextRequest}
                             >
                                 Распознать текст
@@ -222,31 +232,6 @@ export const TextDetection = (props: TextDetectionProps) => {
                       currentImgIndex={currentImgIndex}
                       canMoveToNextStep={canMoveToNextStep}
                   />
-                {/*<Paper elevation={2} sx={{margin: '1rem 0'}}>*/}
-                {/*    <Box sx={{display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1rem'}}>*/}
-                {/*        <Typography variant="h5" component="div" sx={{padding: 1}}>*/}
-                {/*            Результаты {activeStep === 0 ? "детекции" : "распознавания"}*/}
-                {/*        </Typography>*/}
-                {/*        <IconButton color="primary"*/}
-                {/*                    disabled={analysisResults[currentImgIndex]?.length <= 0}*/}
-                {/*        >*/}
-                {/*            <ContentCopy/>*/}
-                {/*        </IconButton>*/}
-                {/*    </Box>*/}
-                {/*    <Divider/>*/}
-
-                {/*    <Box sx={{height: '80vh', overflow: 'auto'}}>*/}
-                {/*        <List dense={true}>*/}
-                {/*          {canMoveToNextStep && analysisResults[currentImgIndex]?.map((result, i) =>*/}
-                {/*            <ListItem key={i}>*/}
-                {/*              <ListItemButton selected={null}>*/}
-                {/*                <ListItemText primary={result} secondary={null}/>*/}
-                {/*              </ListItemButton>*/}
-                {/*            </ListItem>*/}
-                {/*          )}*/}
-                {/*        </List>*/}
-                {/*    </Box>*/}
-                {/*</Paper>*/}
               </Grid>
           </Grid>
       }

@@ -22,3 +22,5 @@ __pycache__
 /tables/
 /output/
 /src/assets/
+/src/corvus/models/
+/src/corvus/dictionaries/

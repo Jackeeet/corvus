@@ -22,10 +22,14 @@ def detect_text(image_paths: list[str]):
     results = []
     output = text_detector.predict(image_paths)
     for i, res in enumerate(output):
-        bbox_image_data = _draw_bboxes(
-            image_paths[i], res.json['res']['dt_polys']
-        )
-        results.append({"detected": res.json, "image": bbox_image_data})
+        boxes = res.json['res']['dt_polys']
+        bbox_image_data = _draw_bboxes(image_paths[i], boxes)
+        box_data = [{
+            "x": points[0][0], "y": points[0][1],
+            "w": points[2][0] - points[0][0],
+            "h": points[2][1] - points[0][1]
+        } for points in boxes]
+        results.append({"detected": box_data, "image": bbox_image_data})
     return results
 
 

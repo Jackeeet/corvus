@@ -3,3 +3,9 @@ pywebview~=5.3.2
 pyinstaller; sys_platform != 'darwin'
 py2app; sys_platform == 'darwin'
 paddleocr~=3.0.0
+opencv-python~=4.11.0.86
+editdistance~=0.8.1
+numpy~=1.26.4
+albumentations~=2.0.8
+keras~=3.10.0
+tensorflow~=2.19.0

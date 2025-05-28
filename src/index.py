@@ -4,12 +4,16 @@ import os
 
 import webview
 
-from src.corvus.element_detector import detect_text
+from corvus.element_detector import detect_text
+from corvus.ocr import recognize_text
 
 
 class Api:
     def detect_text_areas(self, filepaths):
         return detect_text(filepaths)
+
+    def recognize_text_strings(self, filepaths, box_data=None):
+        return recognize_text(filepaths, None, box_data)
 
     def open_file_dialog(self):
         file_types = ("Image files (*.jpg;*.png;*.bmp;*.tif)", "All files (*.*)")
@@ -62,7 +66,7 @@ def get_entrypoint():
 entry = get_entrypoint()
 
 if __name__ == '__main__':
-    faulthandler.enable()
+    # faulthandler.enable()
     window = webview.create_window(
         'corvus', entry, js_api=Api(), frameless=False, maximized=True
     )
