@@ -21,10 +21,9 @@ export const MainMenu = (props: MainMenuProps) => {
         }}
         onClick={props.onTextDetectionClick}
       >
-        Оцифровка неструктурированного документа
+        Оцифровка<br/>неструктурированного<br/>документа
       </Button>
       <Button
-//         disabled={true}
         variant="contained"
         sx={{
           width: 300,
@@ -35,7 +34,7 @@ export const MainMenu = (props: MainMenuProps) => {
         }}
         onClick={props.onStructureAnalysisClick}
       >
-        Оцифровка структурированного документа
+        Оцифровка<br/>структурированного<br/>документа
       </Button>
     </Grid>
   );

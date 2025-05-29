@@ -7,14 +7,14 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import './index.css'
 import {MainMenu} from "./components/MainMenu/MainMenu";
-import {TextDetection} from "./components/TextDetection/TextDetection";
+import {Digitization} from "./components/Digitization/Digitization";
 import {Settings} from "./components/Settings/Settings";
-import {ArrowBack, ArrowForward} from "@mui/icons-material";
+import {ArrowBack} from "@mui/icons-material";
 
 enum AppMode {
   MainMenu,
   TextDetection,
-  StructureAnalysis,
+  ElementsDetection,
   Settings
 }
 
@@ -24,9 +24,6 @@ interface AppProps {
 
 const App = (props: AppProps) => {
   const [appMode, setAppMode] = useState(AppMode.MainMenu);
-  // const [appMode, setAppMode] = useState(AppMode.TextDetection);
-//   const [appMode, setAppMode] = useState(AppMode.Settings);
-
   const changeAppMode = (newAppMode: AppMode) => {
     setAppMode(newAppMode);
   }
@@ -45,7 +42,7 @@ const App = (props: AppProps) => {
     <div style={{
       height: '100vh',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
     }}>
       <AppBar position="static" color="transparent" sx={{flexShrink: 0}}>
         <Toolbar variant="dense">
@@ -66,10 +63,14 @@ const App = (props: AppProps) => {
               </Box>
           }
 
-          {appMode === AppMode.TextDetection &&
+          {(appMode === AppMode.TextDetection || appMode === AppMode.ElementsDetection) &&
               <Stepper activeStep={stepIndex} sx={{flexGrow: 1}}>
                   <Step key="detection" completed={stepIndex > 0}>
-                      <StepLabel>Детекция областей текста</StepLabel>
+                      <StepLabel>
+                          Детекция {
+                        appMode === AppMode.TextDetection ? "областей текста" : "элементов структуры"
+                      }
+                      </StepLabel>
                   </Step>
                   <Step key="recognition" completed={stepIndex > 1}>
                       <StepLabel>Распознавание текста</StepLabel>
@@ -90,6 +91,7 @@ const App = (props: AppProps) => {
           }
         </Toolbar>
       </AppBar>
+
       <Box
         sx={{
           flexGrow: 1,
@@ -101,14 +103,15 @@ const App = (props: AppProps) => {
         {appMode === AppMode.MainMenu &&
             <MainMenu
                 onTextDetectionClick={() => changeAppMode(AppMode.TextDetection)}
-                onStructureAnalysisClick={() => changeAppMode(AppMode.StructureAnalysis)}
+                onStructureAnalysisClick={() => changeAppMode(AppMode.ElementsDetection)}
             />
         }
         {appMode === AppMode.TextDetection &&
-            <TextDetection step={stepIndex} onStepChange={handleStepChange}
-            />
+            <Digitization step={stepIndex} onStepChange={handleStepChange} layout={false}/>
         }
-        {appMode === AppMode.StructureAnalysis && <div>StructureAnalysis</div>}
+        {appMode === AppMode.ElementsDetection &&
+            <Digitization step={stepIndex} onStepChange={handleStepChange} layout={true}/>
+        }
         {appMode === AppMode.Settings &&
             <Settings/>
         }

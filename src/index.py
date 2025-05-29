@@ -4,13 +4,16 @@ import os
 
 import webview
 
-from corvus.element_detector import detect_text
+from corvus.element_detector import detect_text, detect_elements
 from corvus.ocr import recognize_text
 
 
 class Api:
     def detect_text_areas(self, filepaths):
         return detect_text(filepaths)
+
+    def detect_structure_elements(self, filepaths):
+        return detect_elements(filepaths)
 
     def recognize_text_strings(self, filepaths, box_data=None):
         return recognize_text(filepaths, None, box_data)
