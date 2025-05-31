@@ -2,9 +2,22 @@ import os
 import cv2
 import base64
 
-from paddleocr import TextDetection
+from paddleocr import TextDetection, PPStructureV3
+
+# , TableRecognitionPipelineV2
 
 text_detector = TextDetection(model_name="PP-OCRv5_mobile_det")
+element_detector = PPStructureV3(
+    # layout=['table', 'ocr', 'kie']
+    use_formula_recognition=False,
+    use_chart_recognition=False,
+    use_seal_recognition=False,
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_region_detection=False,
+    # use_table_orientation_classify=False,
+    # use_ocr_results_with_table_cells=False,
+)
 
 
 def _draw_bboxes(image_path: str, box_data):
@@ -34,4 +47,25 @@ def detect_text(image_paths: list[str]):
 
 
 def detect_elements(filepaths: list[str]):
-    pass
+    print("starting detection")
+    output = element_detector.predict(
+        filepaths,
+        use_doc_orientation_classify=False,
+        use_doc_unwarping=False,
+        use_textline_orientation=False,
+        use_table_orientation_classify=False,
+        use_seal_recognition=False,
+        use_formula_recognition=False,
+        use_chart_recognition=False,
+        use_region_detection=False,
+        use_ocr_results_with_table_cells=False,
+    )
+    for i, res in enumerate(output):
+        res.save_to_json(save_path='.\\output')
+        res.save_to_img(save_path='.\\output')
+        # print(filepaths[i])
+        # print(res)
+
+
+if __name__ == "__main__":
+    detect_elements("C:\\dev\\corvus\\tables\\3.jpg")

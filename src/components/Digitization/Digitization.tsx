@@ -46,7 +46,7 @@ export const Digitization = (props: TextDetectionProps) => {
     props.onStepChange(oldStep + 1);
   }
 
-  const [detectedAreas, setDetectedAreas] = useState([]);
+  const [detectedTextAreas, setDetectedTextAreas] = useState([]);
   const handleDetectTextRequest = async () => {
     if (props.layout) {
       throw new Error("Unsupported method for layout analysis")
@@ -54,7 +54,7 @@ export const Digitization = (props: TextDetectionProps) => {
 
     setAwaitingBackend(true);
     const detected = await usePythonApi('detect_text_areas', images.map(i => i.path));
-    setDetectedAreas(detected.map(a => a['detected'].map(p =>
+    setDetectedTextAreas(detected.map(a => a['detected'].map(p =>
       `x: ${p['x']}, y: ${p['y']}, w: ${p['w']}, h: ${p['h']}`
     )));
 
@@ -66,10 +66,28 @@ export const Digitization = (props: TextDetectionProps) => {
     setCanMoveToNextStep(true);
   }
 
+  const [detectedLayoutElements, setDetectedLayoutElements] = useState([]);
+  const handleDetectElementsRequest = async () => {
+    if (!props.layout) {
+      throw new Error("Unsupported method for unstructured text detection");
+    }
+
+    setAwaitingBackend(true);
+    const detected = await usePythonApi('detect_structure_elements', images.map(i => i.path));
+    setDetectedLayoutElements(detected.map(d => d['detected']));
+    setImages(images.map((img, i) => {
+      img.data = detected[i]['image'];
+      return img;
+    }));
+    setAwaitingBackend(false);
+    setCanMoveToNextStep(true);
+  }
+
   const [recognitionResults, setRecognitionResults] = useState([]);
   const handleRecogniseTextRequest = async () => {
+    alert("detectinnnn")
     setAwaitingBackend(true);
-    const boxData = detectedAreas.length > 0 ? detectedAreas : null;
+    const boxData = detectedTextAreas.length > 0 ? detectedTextAreas : null;
     const recognizedStrings = await usePythonApi(
       'recognize_text_strings', images.map(i => i.path), null, boxData
     )
@@ -98,7 +116,7 @@ export const Digitization = (props: TextDetectionProps) => {
               <Grid size={3} sx={{height: '85vh'}}>
                   <AnalysisResultsPanel
                       analysisName={activeStep === 0 ? "детекции" : "распознавания"}
-                      results={activeStep === 0 ? detectedAreas : recognitionResults}
+                      results={activeStep === 0 ? detectedTextAreas : recognitionResults}
                       currentImgIndex={currentImgIndex}
                       canMoveToNextStep={canMoveToNextStep}
                   />
@@ -121,7 +139,9 @@ export const Digitization = (props: TextDetectionProps) => {
           {activeStep < 2 &&
               <Button variant="contained"
                       disabled={images.length <= 0 || awaitingBackend}
-                      onClick={activeStep === 0 ? handleDetectTextRequest : handleRecogniseTextRequest}
+                      onClick={activeStep === 0 ?
+                        props.layout ? handleDetectElementsRequest :
+                          handleDetectTextRequest : handleRecogniseTextRequest}
               >
                 {activeStep === 0 ?
                   props.layout ? "Детектировать элементы структуры" :

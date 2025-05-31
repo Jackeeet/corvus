@@ -69,7 +69,8 @@ def get_entrypoint():
 entry = get_entrypoint()
 
 if __name__ == '__main__':
-    # faulthandler.enable()
+    faulthandler.enable()
+    print('starting')
     window = webview.create_window(
         'corvus', entry, js_api=Api(), frameless=False, maximized=True
     )
