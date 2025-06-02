@@ -13,7 +13,7 @@ class Api:
         return detect_text(filepaths)
 
     def detect_structure_elements(self, filepaths):
-        return detect_elements(filepaths)
+        return detect_elements(filepaths, debug=True)
 
     def recognize_text_strings(self, filepaths, box_data=None):
         return recognize_text(filepaths, None, box_data)

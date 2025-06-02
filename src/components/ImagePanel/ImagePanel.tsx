@@ -81,7 +81,10 @@ export const ImagePanel = (props: {
           </Box>
         </Grid>
         <Grid size={8}>
-          <ImageViewer images={props.images} imgIndex={props.imgIndex}/>
+          <ImageViewer images={props.images}
+                       imgIndex={props.imgIndex}
+                       onFileSelect={props.onFileSelect}
+          />
         </Grid>
       </Grid>
     </Paper>

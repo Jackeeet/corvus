@@ -54,8 +54,8 @@ export const Digitization = (props: TextDetectionProps) => {
 
     setAwaitingBackend(true);
     const detected = await usePythonApi('detect_text_areas', images.map(i => i.path));
-    setDetectedTextAreas(detected.map(a => a['detected'].map(p =>
-      `x: ${p['x']}, y: ${p['y']}, w: ${p['w']}, h: ${p['h']}`
+    setDetectedTextAreas(detected.map(a => a['detected'].map((p, i) =>
+      `(${i + 1}) x: ${p['x']}, y: ${p['y']}, w: ${p['w']}, h: ${p['h']}`
     )));
 
     setImages(images.map((img, i) => {
@@ -85,7 +85,6 @@ export const Digitization = (props: TextDetectionProps) => {
 
   const [recognitionResults, setRecognitionResults] = useState([]);
   const handleRecogniseTextRequest = async () => {
-    alert("detectinnnn")
     setAwaitingBackend(true);
     const boxData = detectedTextAreas.length > 0 ? detectedTextAreas : null;
     const recognizedStrings = await usePythonApi(
